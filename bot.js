@@ -15,7 +15,6 @@ client.on('ready', () => {
 
 client.login(process.env.DISCORD_TOKEN);
 
-
 // TODO: Currently this bot only works with a single channel. It should work with multiple.
 var channelId;
 
@@ -29,7 +28,9 @@ client.on('message', message => {
 
   console.log(`Command name: ${command}\nArguments: ${args}`);
 
+  // TODO: Implement remove summoner and clear list.
   switch(command){
+    // TODO: Parse Summoner name within quotes
     case 'track':
       trackSummoner(args, message.channel);
       return;
@@ -106,11 +107,11 @@ setInterval(() => {
   if(!channelId || trackedSummoners.length == 0)
     return;
 
-  trackedSummoners.forEach(summoner => fetchLastTFTMatch(summoner));
+  trackedSummoners.forEach(summoner => maybeAnnounceNewTFTMatch(summoner));
   // TODO: Set this interval to 30 seconds or 1 minute before deployment.
 }, 5000);
 
-function fetchLastTFTMatch(summoner){
+function maybeAnnounceNewTFTMatch(summoner){
   const channel = client.channels.cache.get(channelId);
 
   TftApi.Match.list(summoner.puuid, summoner.TFTRegion)
@@ -123,28 +124,53 @@ function fetchLastTFTMatch(summoner){
     }
 
     const lastMatchId = matchList.response[0];
-    // Retrieve Summoner's last match ID for the first time after tracking.
+    // Case where we are fetching Summoner's match history for the first time.
     if (!summoner.lastMatchId){
       summoner.lastMatchId = lastMatchId;
       return;
     }
-    // Case where the summoner hasn't played a new game.
+    
+    // Case where the Summoner hasn't finished a new TFTMatch.
     if (summoner.lastMatchId == lastMatchId)
       return;
 
-    // TODO: Handle logic where the Summoner has just finished a game, look at RIOT API.
-    TftApi.Match.get(lastMatchId, summoner.TFTRegion)
-      .then(TFTMatch => {
-        console.log(TFTMatch);
-        channel.send(TFTMatch.response.metadata.match_id);
-      })
-      .catch(error => {
-        channel.send(error)
-        console.log('Caught Error During Summoner Last Match Lookup:', error); 
-      });
+    fetchLastTFTMatch();
   })
   .catch(error => {
     channel.send(error)
     console.log('Caught Error During Summoner History Lookup Interval:', error); 
   });
+}
+
+function fetchLastTFTMatch(lastMatchId, TFTRegion, channel){
+  const buildPlacementString = placement => {
+    switch (placement){
+      case 1:
+        return "1st";
+      case 2:
+        return "2nd";
+      case 3:
+        return "3rd";
+      default:
+        return placement.toString() + "th";
+    }
+  }
+
+  TftApi.Match.get(lastMatchId, TFTRegion)
+    .then(TFTMatch => {
+      console.log('Retrieved TFTMatch: ', TFTMatch);
+      const participant = TFTMatch.response.info.participants.find(p => p.puuid === summoner.puuid);
+      console.log('Retrieved Participant: ', participant);
+      channel.send(`Summoner ${summoner.name}(${summoner.region}) just placed ${buildPlacementString(participant.placement)} in a TFT Match.\nComposition:`);
+      console.log('Retrieved Traits: ', trait);
+      // TODO: Implement trait displays.
+      // participant.traits.forEach(trait => {
+        
+      // });
+      summoner.lastMatchId = lastMatchId;
+    })
+    .catch(error => {
+      channel.send(error)
+      console.log('Caught Error During Summoner Last Match Lookup:', error); 
+    });
 }
