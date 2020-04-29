@@ -21,7 +21,6 @@ var channelId;
 
 client.on('message', message => {
   channelId = message.channel.id;
-  console.log(channelId);
 
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -73,7 +72,6 @@ function trackSummoner(args, channel) {
       const newSummoner = new Summoner(summonerName, puuid, twistedRegion, Constants.regionToTftRegions(twistedRegion));
       trackedSummoners.push(newSummoner);
       console.log('Tracking Summoner:', newSummoner);
-      channel.send(puuid);
     })
     .catch(error => { 
       if (error.status == 404){
@@ -104,14 +102,49 @@ async function getTFTSummoner (summonerName, twistedRegion) {
   return puuid;
 }
 
-// export async function getTFTMatchList (puuid, TFTRegion) {
-//   const {
-//     response: {
-//       puuid 
-//     }
-//   } = await TftApi.Summoner.getByName(summonerName, regionArgToTwistedRegion(region))
+setInterval(() => {
+  if(!channelId || trackedSummoners.length == 0)
+    return;
 
-//   return TftApi.Match.list(puuid, Constants.TftRegions.AMERICAS);
-// }
+  trackedSummoners.forEach(summoner => fetchLastTFTMatch(summoner));
+  // TODO: Set this interval to 30 seconds or 1 minute before deployment.
+}, 5000);
 
+function fetchLastTFTMatch(summoner){
+  const channel = client.channels.cache.get(channelId);
 
+  TftApi.Match.list(summoner.puuid, summoner.TFTRegion)
+  .then(matchList => {
+    console.log('Retrieved Matchlist', matchList);
+
+    // Case where the Summoner hasn't played any TFT Games.
+    if(!matchList.response || matchList.response.length == 0){
+      return;
+    }
+
+    const lastMatchId = matchList.response[0];
+    // Retrieve Summoner's last match ID for the first time after tracking.
+    if (!summoner.lastMatchId){
+      summoner.lastMatchId = lastMatchId;
+      return;
+    }
+    // Case where the summoner hasn't played a new game.
+    if (summoner.lastMatchId == lastMatchId)
+      return;
+
+    // TODO: Handle logic where the Summoner has just finished a game, look at RIOT API.
+    TftApi.Match.get(lastMatchId, summoner.TFTRegion)
+      .then(TFTMatch => {
+        console.log(TFTMatch);
+        channel.send(TFTMatch.response.metadata.match_id);
+      })
+      .catch(error => {
+        channel.send(error)
+        console.log('Caught Error During Summoner Last Match Lookup:', error); 
+      });
+  })
+  .catch(error => {
+    channel.send(error)
+    console.log('Caught Error During Summoner History Lookup Interval:', error); 
+  });
+}
