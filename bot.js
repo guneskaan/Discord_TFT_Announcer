@@ -18,12 +18,16 @@ client.login(process.env.DISCORD_TOKEN);
 // TODO: Currently this bot only works with a single channel. It should work with multiple.
 var channelId;
 
+var trackedSummoners = [];
+
 client.on('message', message => {
   channelId = message.channel.id;
 
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
+  const messageContent = message.content;
+  if (!messageContent.startsWith(prefix) || message.author.bot) return;
 
-  const args = message.content.slice(prefix.length).split(' ');
+  //console.log(messageContent.slice(prefix.length).split('"'));
+  const args = messageContent.slice(prefix.length).split('\"').map(arg => arg.trim());
   const command = args.shift().toLowerCase();
 
   console.log(`Command name: ${command}\nArguments: ${args}`);
@@ -48,15 +52,15 @@ class Summoner {
   }
 }
 
-var trackedSummoners = [];
 
 function trackSummoner(args, channel) {
   const availableRegions = ["na", "euw"];
   const userRegion = args[1].toLowerCase();
   const summonerName = args[0];
 
+  console.log(userRegion);
   if (args.length != 2 || !availableRegions.includes(userRegion)) {
-    channel.send('Incorrect usage of command \'track\'.\nCorrect usage: -tftbot track <summoner name> <region (na/euw)>');
+    channel.send('Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (na/euw)>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\`');
     return;
   }
 
@@ -72,6 +76,7 @@ function trackSummoner(args, channel) {
       console.log('Received puuid:', puuid);
       const newSummoner = new Summoner(summonerName, puuid, twistedRegion, Constants.regionToTftRegions(twistedRegion));
       trackedSummoners.push(newSummoner);
+      channel.send(`Tracking Summoner ${newSummoner.name} in Region ${newSummoner.region}`);
       console.log('Tracking Summoner:', newSummoner);
     })
     .catch(error => { 
@@ -109,7 +114,7 @@ setInterval(() => {
 
   trackedSummoners.forEach(summoner => maybeAnnounceNewTFTMatch(summoner));
   // TODO: Set this interval to 30 seconds or 1 minute before deployment.
-}, 5000);
+}, 60000);
 
 function maybeAnnounceNewTFTMatch(summoner){
   const channel = client.channels.cache.get(channelId);
@@ -134,7 +139,7 @@ function maybeAnnounceNewTFTMatch(summoner){
     if (summoner.lastMatchId == lastMatchId)
       return;
 
-    fetchLastTFTMatch();
+    fetchLastTFTMatch(lastMatchId, summoner, channel);
   })
   .catch(error => {
     channel.send(error)
@@ -142,7 +147,7 @@ function maybeAnnounceNewTFTMatch(summoner){
   });
 }
 
-function fetchLastTFTMatch(lastMatchId, TFTRegion, channel){
+function fetchLastTFTMatch(lastMatchId, summoner, channel){
   const buildPlacementString = placement => {
     switch (placement){
       case 1:
@@ -156,17 +161,25 @@ function fetchLastTFTMatch(lastMatchId, TFTRegion, channel){
     }
   }
 
-  TftApi.Match.get(lastMatchId, TFTRegion)
+  const buildTraitString = trait => {
+    const traitName = trait.name;
+    const slicedTraitName = traitName.startsWith('Set3') ? traitName.slice(5) : traitName;
+    
+    return trait.num_units + ' ' + slicedTraitName;
+  }
+
+  TftApi.Match.get(lastMatchId, summoner.TFTRegion)
     .then(TFTMatch => {
       console.log('Retrieved TFTMatch: ', TFTMatch);
       const participant = TFTMatch.response.info.participants.find(p => p.puuid === summoner.puuid);
       console.log('Retrieved Participant: ', participant);
       channel.send(`Summoner ${summoner.name}(${summoner.region}) just placed ${buildPlacementString(participant.placement)} in a TFT Match.\nComposition:`);
-      console.log('Retrieved Traits: ', trait);
-      // TODO: Implement trait displays.
-      // participant.traits.forEach(trait => {
-        
-      // });
+      const traits = participant.traits;
+      console.log('Retrieved Traits: ', traits);
+      var compString = traits
+        .filter(trait => trait.tier_current && trait.tier_current > 0)
+        .reduce((prevTrait, curTrait, index) => index == 0 ? buildTraitString(curTrait) : prevTrait + ', ' + buildTraitString(curTrait), '');
+      channel.send(compString);
       summoner.lastMatchId = lastMatchId;
     })
     .catch(error => {
