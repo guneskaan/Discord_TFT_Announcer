@@ -26,7 +26,6 @@ client.on('message', message => {
   const messageContent = message.content;
   if (!messageContent.startsWith(prefix) || message.author.bot) return;
 
-  //console.log(messageContent.slice(prefix.length).split('"'));
   const args = messageContent.slice(prefix.length).split('\"').map(arg => arg.trim());
   const command = args.shift().toLowerCase();
 
@@ -54,13 +53,13 @@ class Summoner {
 
 
 function trackSummoner(args, channel) {
-  const availableRegions = ["na", "euw"];
+  const availableRegions = ["na", "euw", "tr"];
   const userRegion = args[1].toLowerCase();
   const summonerName = args[0];
 
   console.log(userRegion);
   if (args.length != 2 || !availableRegions.includes(userRegion)) {
-    channel.send('Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (na/euw)>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\`');
+    channel.send('Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (na/euw/tr)>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\`');
     return;
   }
 
@@ -93,6 +92,8 @@ function regionArgToTwistedRegion(regionArg){
       return Constants.Regions.AMERICA_NORTH;
     case 'euw':
       return Constants.Regions.EU_WEST;
+    case 'tr':
+      return Constants.Regions.TURKEY;
     default:
       return;
   }
@@ -114,7 +115,7 @@ setInterval(() => {
 
   trackedSummoners.forEach(summoner => maybeAnnounceNewTFTMatch(summoner));
   // TODO: Set this interval to 30 seconds or 1 minute before deployment.
-}, 60000);
+}, 5000);
 
 function maybeAnnounceNewTFTMatch(summoner){
   const channel = client.channels.cache.get(channelId);
@@ -135,9 +136,9 @@ function maybeAnnounceNewTFTMatch(summoner){
       return;
     }
     
-    // Case where the Summoner hasn't finished a new TFTMatch.
-    if (summoner.lastMatchId == lastMatchId)
-      return;
+    // // Case where the Summoner hasn't finished a new TFTMatch.
+    // if (summoner.lastMatchId == lastMatchId)
+    //   return;
 
     fetchLastTFTMatch(lastMatchId, summoner, channel);
   })
@@ -176,9 +177,11 @@ function fetchLastTFTMatch(lastMatchId, summoner, channel){
       channel.send(`Summoner ${summoner.name}(${summoner.region}) just placed ${buildPlacementString(participant.placement)} in a TFT Match.\nComposition:`);
       const traits = participant.traits;
       console.log('Retrieved Traits: ', traits);
-      var compString = traits
-        .filter(trait => trait.tier_current && trait.tier_current > 0)
-        .reduce((prevTrait, curTrait, index) => index == 0 ? buildTraitString(curTrait) : prevTrait + ', ' + buildTraitString(curTrait), '');
+      var traitList = traits.filter(trait => trait.tier_current && trait.tier_current > 0);
+      traitList.sort((trait1, trait2) => {
+        return trait2.num_units - trait1.num_units;
+      });
+      const compString = traitList.reduce((prevTrait, curTrait, index) => index == 0 ? buildTraitString(curTrait) : prevTrait + ', ' + buildTraitString(curTrait), '');
       channel.send(compString);
       summoner.lastMatchId = lastMatchId;
     })
