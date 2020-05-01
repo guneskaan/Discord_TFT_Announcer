@@ -10,6 +10,7 @@ async function maybeAnnounceNewTFTMatch(summoner, channel){
     }
     catch (error) {
       console.log(error)
+      // TODO: Channel does not need to know about this error.
       channel.send(`Error fetching match history for Summoner ${summoner.name}.`)
     }
 }

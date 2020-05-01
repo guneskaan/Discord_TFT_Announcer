@@ -7,13 +7,13 @@ const Constants = twisted.Constants;
 const TftApi = new twisted.TftApi();
 
 function trackSummoner(args, channel) {
-    const availableRegions = ["na", "euw", "tr"];
+    const availableRegions = ["na", "euw", "eun", "tr", "br", "kr", "oc", "ru", "jp"];
     const userRegion = args[1].toLowerCase();
     const summonerName = args[0];
   
     console.log(userRegion);
     if (args.length != 2 || !availableRegions.includes(userRegion)) {
-      channel.send('Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (na/euw/tr)>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\`');
+      channel.send('Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (na/euw/tr/br/eun/kr/oc/ru/jp)>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\`');
       return;
     }
   
@@ -44,10 +44,22 @@ function regionArgToTwistedRegion(regionArg){
     switch(regionArg){
       case 'na':
         return Constants.Regions.AMERICA_NORTH;
+      case 'eun':
+        return Constants.Regions.EU_EAST;
       case 'euw':
         return Constants.Regions.EU_WEST;
       case 'tr':
         return Constants.Regions.TURKEY;
+      case 'br':
+        return Constants.Regions.BRAZIL;
+      case 'kr':
+        return Constants.Regions.KOREA;
+      case 'oc':
+        return Constants.Regions.OCEANIA;
+      case 'ru':
+        return Constants.Regions.RUSSIA;
+      case 'jp':
+        return Constants.Regions.JAPAN;
       default:
         return;
     }

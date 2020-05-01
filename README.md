@@ -1,3 +1,13 @@
+## Beta Release
+
+Track using `-tftbot track "\<Summoner Name>" \<Region>`.
+
+![](assets/tracking.png)
+
+The bot will then send an update to the channel whenever the Summoner finishes a TFT Match.
+
+![](assets/sharingUpdate.png)
+
 ## Running the Bot
 1) Obtain bot token from Discord Developer Portal
 2) Obtain Riot API Key from Riot Developer Portal
@@ -10,6 +20,9 @@
     ```
     node src/bot.js
     ```
+
+## Progress Tracking
+- https://trello.com/b/TCR4mTRC/tftbot
 
 ## References
 - https://www.digitaltrends.com/gaming/how-to-make-a-discord-bot/ (Bot Tutorial)

@@ -12,7 +12,9 @@ const prefix = "-tftbot ";
 dotenv.config()
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+  console.log(`Logged in as ${client.user.tag}!`);
+
+  return client.user.setPresence({ activity: { name: '-tftbot' , type: "LISTENING"}});
 });
 
 client.login(process.env.DISCORD_TOKEN);
