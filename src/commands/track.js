@@ -2,23 +2,23 @@ import twisted from 'twisted'
 
 import {trackedSummoners} from '../models/TrackedSummoners.js'
 import {Summoner} from '../models/Summoner.js'
+import {availableRegions, regionArgToTwistedRegion} from '../models/Region.js'
 
 const Constants = twisted.Constants;
 const TftApi = new twisted.TftApi();
 
 function trackSummoner(args, channel) {
-    const availableRegions = ["na", "euw", "eun", "tr", "br", "kr", "oc", "ru", "jp"];
     const userRegion = args[1].toLowerCase();
     const summonerName = args[0];
   
     console.log(userRegion);
     if (args.length != 2 || !availableRegions.includes(userRegion)) {
-      channel.send('Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (na/euw/tr/br/eun/kr/oc/ru/jp)>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\`');
+      channel.send(`Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (${availableRegions.toString()})>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\``);
       return;
     }
   
-    if (trackedSummoners.length() == 5){
-      channel.send('Already tracking 5 summoners. Use \'list\' to display tracked summoners or \'clear\' to clear the list.');
+    if (trackedSummoners.length() >= 5){
+      channel.send('Already tracking 5 or more summoners. Use \'list\' to display tracked summoners or \'clear\' to clear the list.');
       return;
     }
   
@@ -39,31 +39,6 @@ function trackSummoner(args, channel) {
         console.log('Caught Error:', error.message); 
       });
 }
-
-function regionArgToTwistedRegion(regionArg){
-    switch(regionArg){
-      case 'na':
-        return Constants.Regions.AMERICA_NORTH;
-      case 'eun':
-        return Constants.Regions.EU_EAST;
-      case 'euw':
-        return Constants.Regions.EU_WEST;
-      case 'tr':
-        return Constants.Regions.TURKEY;
-      case 'br':
-        return Constants.Regions.BRAZIL;
-      case 'kr':
-        return Constants.Regions.KOREA;
-      case 'oc':
-        return Constants.Regions.OCEANIA;
-      case 'ru':
-        return Constants.Regions.RUSSIA;
-      case 'jp':
-        return Constants.Regions.JAPAN;
-      default:
-        return;
-    }
-  }
   
 async function getTFTSummoner (summonerName, twistedRegion) {
     const {

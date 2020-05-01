@@ -1,20 +1,28 @@
 import dotenv from 'dotenv'
 import Discord from 'discord.js'
+import flags from 'flags'
+
 import {trackedSummoners} from './models/TrackedSummoners.js'
 import {clearTrackedSummoners} from './commands/clear.js'
 import {listTrackedSummoners} from './commands/list.js'
 import {trackSummoner} from './commands/track.js'
 import {maybeAnnounceNewTFTMatch} from './announcer.js'
+import {loadDefaultSummoners} from './test/loadDefaults.js'
 
 const client = new Discord.Client();
 const prefix = "-tftbot ";
 
 dotenv.config()
 
+flags.defineBoolean('debug', true);
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  return client.user.setPresence({ activity: { name: '-tftbot' , type: "LISTENING"}});
+  client.user.setPresence({ activity: { name: '-tftbot' , type: "LISTENING"}});
+  
+  console.log(flags.get('debug'));
+  if (flags.get('debug')) loadDefaultSummoners();
 });
 
 client.login(process.env.DISCORD_TOKEN);

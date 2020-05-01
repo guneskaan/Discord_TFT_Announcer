@@ -9,7 +9,13 @@ export class TrackedSummoners {
         this.trackedSummoners.push(Summoner);
     }
 
-    list(Summoner){
+    addAll(Summoners){
+        console.log('adding all');
+        Summoners.forEach(summoner => this.add(summoner));
+        console.log(this.trackedSummoners);
+    }
+
+    list(){
         const buildSummonerString = summoner => {
             return summoner.name + '(' + summoner.region + ')';
           };
