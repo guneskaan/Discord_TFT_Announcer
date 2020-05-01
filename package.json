@@ -4,7 +4,13 @@
     "description": "A bot that announces TFT match results of given players using League of Legends API.",
     "main": "bo-t.js",
     "author": "Gunesh Pinar",
+    "engines": {
+        "node": "14.0.0"
+    },
     "type": "module",
+    "scripts": {
+        "start": "node src/bot.js --debug"
+    },
     "dependencies": {
         "discord.js": "^12.2.0",
         "dotenv": "^8.2.0",
