@@ -1,10 +1,10 @@
 ## Beta Release
 
-Track using `-tftbot track "\<Summoner Name>" \<Region>`.
+Track using `-tftbot track "<Summoner Name>" <Region>`.
 
 ![](assets/tracking.png)
 
-The bot will then send an update to the channel whenever the Summoner finishes a TFT Match.
+The bot will then send an update to the channel whenever a tracked Summoner finishes a TFT Match.
 
 ![](assets/sharingUpdate.png)
 
