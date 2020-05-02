@@ -2,7 +2,7 @@ import twisted from 'twisted'
 
 const TftApi = new twisted.TftApi();
 
-async function maybeAnnounceNewTFTMatch(summoner, channel){  
+async function maybeAnnounceNewTFTMatch(summoner, channel){
     try {
       const matchList = await TftApi.Match.list(summoner.puuid, summoner.TFTRegion)
       const TFTMatch = await retrieveSingleMatch(matchList, summoner)

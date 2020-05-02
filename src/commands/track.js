@@ -10,15 +10,14 @@ const TftApi = new twisted.TftApi();
 function trackSummoner(args, channel) {
     const userRegion = args[1].toLowerCase();
     const summonerName = args[0];
-  
-    console.log(userRegion);
+
     if (args.length != 2 || !availableRegions.includes(userRegion)) {
       channel.send(`Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (${availableRegions.toString()})>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\``);
       return;
     }
   
-    if (trackedSummoners.length() >= 5){
-      channel.send('Already tracking 5 or more summoners. Use \'list\' to display tracked summoners or \'clear\' to clear the list.');
+    if (trackedSummoners.length(channel.id) > 5){
+      channel.send('Already tracking 5 Summoners. Use \'list\' to display tracked summoners or \'clear\' to clear the list.');
       return;
     }
   
@@ -28,7 +27,7 @@ function trackSummoner(args, channel) {
       .then(puuid => {
         console.log('Received puuid:', puuid);
         const newSummoner = new Summoner(summonerName, puuid, twistedRegion, Constants.regionToTftRegions(twistedRegion));
-        trackedSummoners.add(newSummoner);
+        trackedSummoners.add(channel.id, newSummoner);
         channel.send(`Tracking Summoner ${newSummoner.name} in Region ${newSummoner.region}`);
         console.log('Tracking Summoner:', newSummoner);
       })

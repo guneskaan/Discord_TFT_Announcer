@@ -18,20 +18,22 @@ flags.defineBoolean('debug', true);
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  
+  if (flags.get('debug')) {
+    client.channels.cache.forEach(channel => {
+      if (channel.type != 'text') return;
+      loadDefaultSummoners(channel.id);
+    });
+  }
 
   client.user.setPresence({ activity: { name: '-tftbot' , type: "LISTENING"}});
-  
-  console.log(flags.get('debug'));
-  if (flags.get('debug')) loadDefaultSummoners();
 });
 
 client.login(process.env.DISCORD_TOKEN);
 
-var channelId;
-
 client.on('message', message => {
+  console.log(message.channel.id);
   const channel = message.channel;
-  channelId = channel.id;
 
   const messageContent = message.content;
   if (!messageContent.startsWith(prefix) || message.author.bot) return;
@@ -57,11 +59,4 @@ client.on('message', message => {
   }
 });
 
-setInterval(() => {
-  if(!channelId || trackedSummoners.length() == 0)
-    return;
-
-  const channel = client.channels.cache.get(channelId);
-
-  return trackedSummoners.get().forEach(summoner => maybeAnnounceNewTFTMatch(summoner, channel));
-}, 60000);
+setInterval(() => trackedSummoners.checkForUpdates(client), 60000);
