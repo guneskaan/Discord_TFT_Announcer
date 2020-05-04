@@ -38,15 +38,9 @@ export class TrackedSummoners {
         return this.trackedSummoners[channelID].length;
     }
 
-    // TODO: Eventually get rid of this function.
-    get(channelID){
-        return this.trackedSummoners[channelID];
-    }
-
-    checkForUpdates(client){
+    checkForUpdates(channelsCache){
         for (const channelID in this.trackedSummoners){
-            const channel = client.channels.cache.get(channelId);
-            console.log('now in channel ', channelID);
+            const channel = channelsCache.get(channelID);
             this.trackedSummoners[channelID].forEach(summoner => maybeAnnounceNewTFTMatch(summoner, channel));
         }
     }

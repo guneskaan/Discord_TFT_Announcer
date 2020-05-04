@@ -8,7 +8,7 @@ The bot will then send an update to the channel whenever a tracked Summoner fini
 
 ![](assets/sharingUpdate.png)
 
-## Running the Bot
+## Running the Bot Locally
 1) Obtain bot token from Discord Developer Portal
 2) Obtain Riot API Key from Riot Developer Portal
 3) Create `.env` file in the main directory in the following format:
@@ -18,9 +18,9 @@ The bot will then send an update to the channel whenever a tracked Summoner fini
     ```
 4) Start bot with
     ```
-    node src/bot.js
+    node src/bot.js --debug --development
     ```
-
+    
 ## Progress Tracking
 - https://trello.com/b/TCR4mTRC/tftbot
 
