@@ -6,4 +6,8 @@ function clearTrackedSummoners(channel){
     console.log(trackedSummoners);
 }
 
-export {clearTrackedSummoners};
+function displayClearHelpMessage (channel) {
+    return channel.send(`Usage: \`-tftbot clear\` to clear the list of tracked Summoners.`);
+}
+
+export {clearTrackedSummoners, displayClearHelpMessage};

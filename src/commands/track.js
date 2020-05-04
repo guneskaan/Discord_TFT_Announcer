@@ -12,7 +12,7 @@ function trackSummoner(args, channel) {
     const summonerName = args[0];
 
     if (args.length != 2 || !availableRegions.includes(userRegion)) {
-      channel.send(`Incorrect usage of command \'track\'.\nCorrect usage: \`-tftbot track "<summoner name>" <region (${availableRegions.toString()})>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\``);
+      displayIncorrectTrackUsageMessage(channel);
       return;
     }
   
@@ -49,4 +49,14 @@ async function getTFTSummoner (summonerName, twistedRegion) {
     return puuid;
 }
 
-export {trackSummoner};
+function displayIncorrectTrackUsageMessage (channel){
+  channel.send(`Incorrect usage of command \'track\'`);
+
+  return displayTrackHelpMessage(channel);
+}
+
+function displayTrackHelpMessage (channel) {
+  return channel.send(`Usage: \`-tftbot track "<summoner name>" <region (${availableRegions.toString()})>\`.\nE.g \`-tftbot track \"Lie Lie Lie\" na\``);
+}
+
+export {trackSummoner, displayTrackHelpMessage, displayIncorrectTrackUsageMessage};

@@ -9,4 +9,8 @@ function listTrackedSummoners(channel){
     return channel.send(`Currently tracking Summoners: ${trackedSummonersString}`);
 }
 
-export {listTrackedSummoners};
+function displayListHelpMessage(channel){
+    return channel.send(`Use \`-tftbot list\` to display tracked summoners`);
+}
+
+export {listTrackedSummoners, displayListHelpMessage};
