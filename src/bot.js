@@ -1,5 +1,7 @@
 import Discord from 'discord.js'
 import flags from 'flags'
+import path from 'path'
+import express from 'express'
 
 import {trackedSummoners} from './models/TrackedSummoners.js'
 import {clearTrackedSummoners} from './commands/clear.js'
@@ -9,6 +11,12 @@ import {loadDefaultSummoners} from './test/loadDefaults.js'
 
 const client = new Discord.Client();
 const prefix = "-tftbot ";
+
+// Listen to incoming requests.
+const app = express();
+const port = process.env.PORT || 8080;
+
+app.listen(port);
 
 flags.defineBoolean('default', false);
 flags.defineBoolean('development', false);
@@ -64,4 +72,4 @@ client.on('message', message => {
   }
 });
 
-setInterval(() => trackedSummoners.checkForUpdates(client.channels.cache), 60000);
+setInterval(() => trackedSummoners.checkForUpdates(client.channels.cache), 5000);
