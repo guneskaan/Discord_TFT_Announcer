@@ -79,4 +79,4 @@ client.on('message', message => {
   }
 });
 
-setInterval(() => trackedSummoners.checkForUpdates(client.channels.cache), 60000);
+setInterval(() => trackedSummoners.checkForUpdates(client.channels.cache), 20000);
