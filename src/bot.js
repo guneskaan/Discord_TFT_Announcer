@@ -33,7 +33,6 @@ client.on('ready', () => {
   client.user.setPresence({ activity: { name: '-tftbot' , type: "LISTENING"}});
 });
 
-console.log(process.env.RIOT_API_KEY);
 client.login(process.env.DISCORD_TOKEN);
 
 client.on('message', message => {
