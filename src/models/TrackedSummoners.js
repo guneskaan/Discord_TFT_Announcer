@@ -39,14 +39,9 @@ export class TrackedSummoners {
     }
 
     checkForUpdates(channelsCache){
-        try{
-            for (const channelID in this.trackedSummoners){
-                const channel = channelsCache.get(channelID);
-                this.trackedSummoners[channelID].forEach(summoner => maybeAnnounceNewTFTMatch(summoner, channel));
-            }
-        }
-        catch (e){
-            console.log('error checkforupdates: ', e);
+        for (const channelID in this.trackedSummoners){
+            const channel = channelsCache.get(channelID);
+            this.trackedSummoners[channelID].forEach(summoner => maybeAnnounceNewTFTMatch(summoner, channel));
         }
     }
 }
