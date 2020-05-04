@@ -1,4 +1,3 @@
-import dotenv from 'dotenv'
 import Discord from 'discord.js'
 import flags from 'flags'
 
@@ -16,8 +15,9 @@ flags.defineBoolean('development', false);
 
 flags.parse();
 
-if (flags.get('development'))
-  dotenv.config()
+if (flags.get('development')){
+  require ('dotenv').config();
+}
 
 client.on('ready', () => {
   // Add default help message.
